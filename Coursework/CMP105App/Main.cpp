@@ -1,0 +1,132 @@
+// Main
+// Entry point of the application.
+// Handles window creation and window events.
+// Contains the game loop, updates input class and contains the level objects.
+// @author Paul Robertson
+// @reviser William Kavanagh (2025)
+
+#include <iostream>
+#include "Level.h"
+#include "Menu.h"
+
+#ifndef SFML_VERSION_MAJOR
+	#error "SFML 3 is required for this framework."
+#endif
+
+
+void windowProcess(sf::RenderWindow& window, Input& in)
+{
+	// Handle window events.
+	while (const auto event = window.pollEvent())
+	{
+		if (event->is<sf::Event::Closed>())
+		{
+			window.close();
+		}
+		if (const auto* resized = event->getIf<sf::Event::Resized>())
+		{
+			sf::FloatRect visibleArea(sf::Vector2f(0.f, 0.f), sf::Vector2f(resized->size));
+			window.setView(sf::View(visibleArea));
+		}
+		if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+		{
+			in.setKeyDown(keyPressed->scancode);
+		}
+		if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
+		{
+			in.setKeyUp(keyReleased->scancode);
+		}
+		if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonPressed>())
+		{
+			if (mousePressed->button == sf::Mouse::Button::Left)
+			{
+				in.setLeftMouse(Input::MouseState::PRESSED);
+			}
+			else
+			{
+				in.setRightMouse(Input::MouseState::PRESSED);
+			}
+		}
+		if (const auto* mouseReleased = event->getIf<sf::Event::MouseButtonReleased>())
+		{
+			if (mouseReleased->button == sf::Mouse::Button::Left)
+			{
+				in.setLeftMouse(Input::MouseState::UP);
+			}
+			else
+			{
+				in.setRightMouse(Input::MouseState::UP);
+			}
+		}
+		if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>())
+		{
+			in.setMousePosition(mouseMoved->position.x, mouseMoved->position.y);
+		}
+		/*
+		* There are other events you may wish to poll for, such as:
+		* controller or joystick input, scrolling mouse wheel or focus gained/lost
+		*/
+	}
+}
+
+
+int main()
+{
+
+	//Create the window
+	sf::RenderWindow window(sf::VideoMode({ 400, 400 }), "cmp105 Lab 6");
+	window.setVerticalSyncEnabled(true);
+
+	// Initialise input and manager objects.
+	Input input;
+	GameState gameState;
+	AudioManager audio;
+
+
+	// Create level objects that may reference manager objects
+	Level level(window, input, gameState, audio);
+	Menu menu(window, input, gameState, audio);
+	gameState.setCurrentState(State::MENU);
+
+	// Initialise objects for delta time
+	sf::Clock clock;
+	float deltaTime = 0.f;
+
+	// Game Loop
+	while (window.isOpen())
+	{
+		//Process window events
+		windowProcess(window, input);
+
+		// Calculate delta time. How much time has passed 
+		// since it was last calculated (in seconds) and restart the clock.
+		deltaTime = clock.restart().asSeconds();
+		if (deltaTime > 0.1f) deltaTime = 0.1f; // Clamp delta time to avoid large jumps
+
+		if (gameState.getCurrentState() == State::LEVEL)
+		{
+			// NOTE: Transitions handled inside levels 
+			// (hacky solution suitable for a lab, not a project)
+			level.handleInput(deltaTime);
+			// reset if change has been called.
+			if (gameState.getCurrentState() == State::MENU) 
+				menu.reset();
+			else
+			{
+				level.update(deltaTime);
+				level.render();
+			}
+		}
+		else
+		{
+			menu.handleInput(deltaTime);
+			menu.render();
+		}
+
+
+		// Update input class, handle pressed keys
+		// Must be done last.
+		input.update();
+	}
+
+}
