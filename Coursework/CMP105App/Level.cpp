@@ -66,10 +66,12 @@ void Level::reset()
 
     loadLevel("data/level1.txt", levelSize);
 
+    m_timeSpent = 0.f;
+    m_sheepTimer = 0.f;
+
     m_audio.stopAllMusic();
     m_audio.playMusicbyName("nature");
 
-    m_gameTimer.restart();
 }
 
 void Level::UpdateCamera()
@@ -99,6 +101,21 @@ void Level::UpdateCamera()
     m_timerText.setPosition({ viewTopLeft.x + margin, viewTopLeft.y + viewSize.y - margin });
 
     m_window.setView(view);
+}
+
+void Level::spawnSheep(sf::Vector2f worldSize)
+{
+
+    float x = std::rand() % static_cast<int>(m_levelBounds.size.x - 32);
+    float y std::rand() % static_cast<int>(m_levelBounds.size.y - 32);
+
+    Sheep* newSheep = new Sheep(sf::Vector2f(x, y), m_playerRabbit);
+    newSheep->setAudioPointer(&m_audio);
+    newSheep->setTexture(&m_sheepTexture);
+    newSheep->setSize({ 32,32 });
+    newSheep->setWorldSize(worldSize.x, worldSize.y);
+    m_sheepList.push_back(newSheep);
+
 }
 
 // handle user input
@@ -154,28 +171,32 @@ void Level::manageCollisions()
 // Update game objects
 void Level::update(float dt)
 {
+
     if (m_isGameOver) return;   // if the game is over, don't continue trying to process game logic
 
+    m_timeSpent += dt;
+    m_sheepTimer += dt;
+
     m_playerRabbit->update(dt);
-    for (Sheep* s : m_sheepList)
-    {
-        if (s->isAlive()) s->update(dt);
+    for (Sheep* s : m_sheepList) if (s->isAlive()) s->update(dt);
 
-    }
+    float timeReamining = m_maxTime - m_timeSpent;
 
-    // Timer 
-    float timeElapsed = m_gameTimer.getElapsedTime().asSeconds();
-    m_timerText.setString("Time: " + std::to_string(static_cast<int>(timeElapsed)));
+    if (m_timeSpent < 0.f) m_timeSpent = 0.f;
 
+    // Game Over is active when timer reaches maxTime
+    m_isGameOver = (m_timeSpent >= m_maxTime);
+
+    // Convert float text into string
+    m_timerText.setString("Time: " + std::to_string(static_cast<int>(timeReamining)));
 
     manageCollisions();
     UpdateCamera();
-    m_isGameOver = timeElapsed > 99;    // temporary
 
     if (m_isGameOver)
     {
         // will happen ONCE in the frame that game over is triggered.
-        writeHighScore(timeElapsed);
+        writeHighScore(m_timeSpent);
         displayScoreboard();
     }
 }

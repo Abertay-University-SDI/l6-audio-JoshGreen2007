@@ -24,8 +24,10 @@ private:
     void UpdateCamera();
     void manageCollisions();
 
-    void writeHighScore(float timeTaken);  
+    void writeHighScore(float timeTaken);
     void displayScoreboard();
+
+    void spawnSheep(sf::Vector2f worldSize);
 
     void loadLevel(std::string fileName, sf::Vector2f worldSize); 
 
@@ -42,15 +44,19 @@ private:
 
     // Level Data
     sf::FloatRect m_levelBounds;
-    bool m_isGameOver;
+    bool m_isGameOver = false;
 
     // UI & Timer
-    sf::Clock m_gameTimer;      // We will replace this with a float, although clocks are cool.
+    float m_timeSpent;
+    float m_sheepTimer;
+    float m_maxTime = 30.f;
+    const float SHEEP_INTERVAL = 10.f;
     sf::Font m_font;
     sf::Text m_timerText;
     sf::Text m_winText;
 	
     sf::Text m_scoreboardText;  
     std::string m_levelName;
+
 
 };
