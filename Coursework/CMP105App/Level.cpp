@@ -35,7 +35,6 @@ void Level::reset()
     m_isGameOver = false;
     if (m_playerRabbit) delete m_playerRabbit;
     m_playerRabbit = new Rabbit();
-
     
     m_playerRabbit->setSize({ 32,32 });
     m_playerRabbit->setInput(&m_input);
@@ -65,6 +64,9 @@ void Level::reset()
     m_sheepList.clear();
 
     loadLevel("data/level1.txt", levelSize);
+
+    m_audio.stopAllMusic();
+    m_audio.playMusicbyName("nature");
 
     m_gameTimer.restart();
 }
@@ -132,7 +134,12 @@ void Level::manageCollisions()
             }
         }
         if (Collision::checkBoundingBox(*m_sheepList[i], m_goal))
+        {
+
             m_sheepList[i]->collideWithGoal(m_goal);
+            m_audio.playSoundbyName("yay");
+
+        }
     }
     for (auto wall : m_walls)
     {

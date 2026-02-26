@@ -2,6 +2,20 @@
 
 AudioManager::AudioManager()
 {
+
+	addSound("bah", "sfx/bah.mp3");
+	addSound("yay", "sfx/yay.mp3");
+
+	addMusic("corporate", "sfx/corporate.mp3");
+	addMusic("nature", "sfx/nature.mp3");
+
+	// Loop music
+	if (auto music = getMusic("corporate"))
+		music->setLooping(true);
+
+	if (auto music = getMusic("nature"))
+		music->setLooping(true);
+
 }
 
 AudioManager::~AudioManager()

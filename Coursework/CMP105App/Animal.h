@@ -32,4 +32,7 @@ protected:  // RECAP: protected means "private but too all except my kids", so S
     Animation m_walkDownRight;
 
     Animation* m_currentAnimation;
+
+    AudioManager* m_sheepSound;
+
 };

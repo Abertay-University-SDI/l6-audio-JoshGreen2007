@@ -103,13 +103,15 @@ int main()
 		deltaTime = clock.restart().asSeconds();
 		if (deltaTime > 0.1f) deltaTime = 0.1f; // Clamp delta time to avoid large jumps
 
-		if (gameState.getCurrentState() == State::LEVEL)
+		State current = gameState.getCurrentState();
+
+		if (current == State::LEVEL)
 		{
 			// NOTE: Transitions handled inside levels 
 			// (hacky solution suitable for a lab, not a project)
 			level.handleInput(deltaTime);
 			// reset if change has been called.
-			if (gameState.getCurrentState() == State::MENU) 
+			if (current == State::MENU) 
 				menu.reset();
 			else
 			{
