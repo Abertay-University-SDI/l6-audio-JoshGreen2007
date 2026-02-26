@@ -9,6 +9,7 @@ Animal::Animal()
     m_velocity = { 0, 0 };
     m_acceleration = { 0, 0 };
 
+    m_audioPointer = nullptr;
     
 }
 
@@ -60,6 +61,8 @@ void Animal::checkWallAndBounce()
     if ((pos.y < 0 && m_velocity.y < 0) || (pos.y + size.y > m_worldSize.y && m_velocity.y > 0))
         m_velocity.y *= -m_restitution;
 }
+
+void Animal::setAudioPointer(AudioManager* audio) { m_audioPointer = audio; }
 
 // sets animation pointer based on direction
 void Animal::setDirection()

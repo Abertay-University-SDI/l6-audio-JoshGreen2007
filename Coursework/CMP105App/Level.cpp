@@ -24,6 +24,7 @@ Level::~Level()
     for (Sheep* s : m_sheepList)
     {
         delete s;
+
     }
     m_sheepList.clear();
 }
@@ -159,6 +160,7 @@ void Level::update(float dt)
     for (Sheep* s : m_sheepList)
     {
         if (s->isAlive()) s->update(dt);
+
     }
 
     // Timer 
@@ -244,6 +246,7 @@ void Level::loadLevel(std::string fileName, sf::Vector2f worldSize)
         {
             inputFile >> x >> y;
             Sheep* newSheep = new Sheep(sf::Vector2f(x, y), m_playerRabbit);
+            newSheep->setAudioPointer(&m_audio);
             newSheep->setTexture(&m_sheepTexture);
             newSheep->setSize({ 32,32 });
             newSheep->setWorldSize(worldSize.x, worldSize.y);

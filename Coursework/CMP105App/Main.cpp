@@ -74,7 +74,7 @@ int main()
 {
 
 	//Create the window
-	sf::RenderWindow window(sf::VideoMode({ 400, 400 }), "cmp105 Lab 6");
+	sf::RenderWindow window(sf::VideoMode({ 800, 800 }), "cmp105 Lab 6");
 	window.setVerticalSyncEnabled(true);
 
 	// Initialise input and manager objects.
