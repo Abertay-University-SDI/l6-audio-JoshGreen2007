@@ -27,7 +27,8 @@ private:
     void writeHighScore(float timeTaken);
     void displayScoreboard();
 
-    void spawnSheep(sf::Vector2f worldSize);
+    void spawnSheep();
+    bool checkPositionOutsideWalls(sf::Vector2f pos);
 
     void loadLevel(std::string fileName, sf::Vector2f worldSize); 
 

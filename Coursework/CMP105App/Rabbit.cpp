@@ -55,7 +55,7 @@ void Rabbit::handleInput(float dt)
     if (m_input->isKeyDown(sf::Keyboard::Scancode::S)) inputDirection.y += 1;
     if (m_input->isKeyDown(sf::Keyboard::Scancode::A)) inputDirection.x -= 1;
 
-    if (inputDirection.length() > 0) inputDirection = inputDirection.normalized();
+    if (inputDirection.length() > 0.f) inputDirection = inputDirection.normalized();
 
     m_acceleration = inputDirection * RABBIT_ACCELERATION; 
 }

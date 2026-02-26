@@ -49,7 +49,7 @@ void Sheep::update(float dt)
 	m_acceleration = { 0.f, 0.f };	// no new acceleration by default
 
 	// check if rabbit is close enough to effect acceleration
-	if (to_rabbit.length() <= ALERT_DISTANCE && to_rabbit.length() > 0)
+	if (to_rabbit.length() <= ALERT_DISTANCE && to_rabbit.length() > 0.f)
 	{
 		// head away from them
 		m_acceleration = -to_rabbit.normalized() * ACCELERATION;
@@ -57,7 +57,6 @@ void Sheep::update(float dt)
 		if (m_audioPointer)
 		{
 
-			m_audioPointer->stopAllSounds();
 			m_audioPointer->playSoundbyName("bah");
 
 		}

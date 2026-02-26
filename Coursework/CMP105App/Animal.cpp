@@ -6,8 +6,8 @@ Animal::Animal()
     // Set default physics values
     m_dragFactor = 0.9f;    // Example default
     m_restitution = 0.8f;    // Example default
-    m_velocity = { 0, 0 };
-    m_acceleration = { 0, 0 };
+    m_velocity = { 0.f, 0.f };
+    m_acceleration = { 0.f, 0.f };
 
     m_audioPointer = nullptr;
     
@@ -41,10 +41,10 @@ void Animal::collisionResponse(GameObject& collider)
     m_velocity *= -m_restitution;
 
     if (m_velocity.lengthSquared() < 150)
-        if (m_velocity.length() > 0)
+        if (m_velocity.length() > 0.f)
            move(m_velocity.normalized() * 25.f);    
     else
-        if (m_velocity.length() > 0)
+        if (m_velocity.length() > 0.f)
             move(m_velocity.normalized() * 5.f);
     setDirection();       // handle animation check AGAIN (update usually comes before collisions in level::update)
 }
@@ -55,10 +55,10 @@ void Animal::checkWallAndBounce()
     sf::Vector2f pos = getPosition();
     sf::Vector2f size = getSize();
 
-    if ((pos.x < 0 && m_velocity.x < 0) || (pos.x + size.x > m_worldSize.x && m_velocity.x > 0))
+    if ((pos.x < 0 && m_velocity.x < 0) || (pos.x + size.x > m_worldSize.x && m_velocity.x > 0.f))
         m_velocity.x *= -m_restitution;
 
-    if ((pos.y < 0 && m_velocity.y < 0) || (pos.y + size.y > m_worldSize.y && m_velocity.y > 0))
+    if ((pos.y < 0 && m_velocity.y < 0) || (pos.y + size.y > m_worldSize.y && m_velocity.y > 0.f))
         m_velocity.y *= -m_restitution;
 }
 

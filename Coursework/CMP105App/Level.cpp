@@ -21,11 +21,7 @@ Level::~Level()
     // We made a lot of **new** things, allocating them on the heap
     // So now we have to clean them up
     delete m_playerRabbit;
-    for (Sheep* s : m_sheepList)
-    {
-        delete s;
-
-    }
+    for (Sheep* s : m_sheepList) delete s;
     m_sheepList.clear();
 }
 
@@ -37,7 +33,7 @@ void Level::reset()
     if (m_playerRabbit) delete m_playerRabbit;
     m_playerRabbit = new Rabbit();
     
-    m_playerRabbit->setSize({ 32,32 });
+    m_playerRabbit->setSize({ 32.f,32.f });
     m_playerRabbit->setInput(&m_input);
     m_playerRabbit->setTexture(&m_rabbitTexture);
     m_playerRabbit->setWorldSize(levelSize.x, levelSize.y);
@@ -103,18 +99,51 @@ void Level::UpdateCamera()
     m_window.setView(view);
 }
 
-void Level::spawnSheep(sf::Vector2f worldSize)
+void Level::spawnSheep()
 {
 
-    float x = std::rand() % static_cast<int>(m_levelBounds.size.x - 32);
-    float y std::rand() % static_cast<int>(m_levelBounds.size.y - 32);
+    // Random position inside level bounds
+    int maxX = std::rand() % static_cast<int>(m_levelBounds.size.x - 32);
+    int maxY = std::rand() % static_cast<int>(m_levelBounds.size.y - 32);
 
-    Sheep* newSheep = new Sheep(sf::Vector2f(x, y), m_playerRabbit);
+    sf::Vector2f sheepPos;
+    bool validPos = false;
+
+    while (!validPos)
+    {
+
+        sheepPos = {
+
+            static_cast<int>(rand() % maxX),
+            static_cast<int>(rand() % maxY)
+            
+        };
+
+        validPos = checkPositionOutsideWalls(sheepPos);
+
+    }
+
+    Sheep* newSheep = new Sheep(sheepPos, m_playerRabbit);
     newSheep->setAudioPointer(&m_audio);
     newSheep->setTexture(&m_sheepTexture);
-    newSheep->setSize({ 32,32 });
-    newSheep->setWorldSize(worldSize.x, worldSize.y);
+    newSheep->setSize({ 32.f,32.f });
+    newSheep->setWorldSize(m_levelBounds.size.x, m_levelBounds.size.y);
+    newSheep->setAudioPointer(&m_audio);
     m_sheepList.push_back(newSheep);
+
+}
+
+bool Level::checkPositionOutsideWalls(sf::Vector2f pos)
+{
+
+    sf::Vector2i checkPos({
+        static_cast<int>(pos.x),
+        static_cast<int>(pos.y)
+        });
+
+    for (auto& wall : m_walls)
+        if (Collision::checkBoundingBox(wall, checkPos)) return false;
+    return true;
 
 }
 
@@ -174,21 +203,31 @@ void Level::update(float dt)
 
     if (m_isGameOver) return;   // if the game is over, don't continue trying to process game logic
 
-    m_timeSpent += dt;
-    m_sheepTimer += dt;
-
     m_playerRabbit->update(dt);
     for (Sheep* s : m_sheepList) if (s->isAlive()) s->update(dt);
 
+    if (m_sheepTimer <= 0)
+    {
+
+        spawnSheep();
+        m_sheepTimer = SHEEP_INTERVAL;
+
+    }
+
+    m_sheepTimer -= dt;
+    m_timeSpent += dt;
+
     float timeReamining = m_maxTime - m_timeSpent;
+
+    // Convert float text into string
+    m_timerText.setString("Time: " + std::to_string(static_cast<int>(timeReamining)));
 
     if (m_timeSpent < 0.f) m_timeSpent = 0.f;
 
     // Game Over is active when timer reaches maxTime
     m_isGameOver = (m_timeSpent >= m_maxTime);
 
-    // Convert float text into string
-    m_timerText.setString("Time: " + std::to_string(static_cast<int>(timeReamining)));
+
 
     manageCollisions();
     UpdateCamera();
@@ -248,7 +287,7 @@ void Level::displayScoreboard()
     m_scoreboardText.setString(fullText);
     m_scoreboardText.setCharacterSize(24);
     m_scoreboardText.setFillColor(sf::Color::Black);
-    m_scoreboardText.setPosition({ 400,200 });
+    m_scoreboardText.setPosition({ 400.f,200.f });
 }
 
 void Level::loadLevel(std::string fileName, sf::Vector2f worldSize)
@@ -269,7 +308,7 @@ void Level::loadLevel(std::string fileName, sf::Vector2f worldSize)
             Sheep* newSheep = new Sheep(sf::Vector2f(x, y), m_playerRabbit);
             newSheep->setAudioPointer(&m_audio);
             newSheep->setTexture(&m_sheepTexture);
-            newSheep->setSize({ 32,32 });
+            newSheep->setSize({ 32.f,32.f });
             newSheep->setWorldSize(worldSize.x, worldSize.y);
             m_sheepList.push_back(newSheep);
         }
@@ -281,10 +320,10 @@ void Level::loadLevel(std::string fileName, sf::Vector2f worldSize)
         else if (object == "GOAL")
         {
             inputFile >> x >> y;
-            m_goal.setSize({ 50, 50 });
+            m_goal.setSize({ 50.f, 50.f });
             m_goal.setFillColor(sf::Color::Blue);
             m_goal.setPosition({ x, y });
-            m_goal.setCollisionBox({ { 0,0 }, { 50,50 } });
+            m_goal.setCollisionBox({ { 0.f,0.f }, { 50.f,50.f } });
 
         }
         else if (object == "WALL")
@@ -294,7 +333,7 @@ void Level::loadLevel(std::string fileName, sf::Vector2f worldSize)
             wall.setPosition({ x, y });
             wall.setSize({ w,h });
             wall.setFillColor(sf::Color::Black);
-            wall.setCollisionBox({ { 0,0 }, { w,h } });
+            wall.setCollisionBox({ { 0.f,0.f }, { w,h } });
             m_walls.push_back(wall);
         }
         else

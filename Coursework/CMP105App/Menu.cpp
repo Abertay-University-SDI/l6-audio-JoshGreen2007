@@ -5,7 +5,7 @@ Menu::Menu(sf::RenderWindow& window, Input& input, GameState& state, AudioManage
 {
 	m_prompt.setString("Press space to start");
 	m_prompt.setCharacterSize(24);
-	m_prompt.setPosition({ 100,150 });
+	m_prompt.setPosition({ 100.f,150.f });
 	if (!m_font.openFromFile("font/arial.ttf")) std::cerr << "failed to get font in menu";
 
 }
