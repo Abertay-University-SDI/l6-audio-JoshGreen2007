@@ -11,8 +11,8 @@ public:
 	~Rabbit();
 
 	void handleInput(float dt) override;
-	void setDirection();
-	void checkWallAndBounce();
+	/*void setDirection();
+	void checkWallAndBounce();*/
 
 private:
 	const float DRAG_FACTOR = 0.95f;

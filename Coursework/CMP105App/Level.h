@@ -9,7 +9,7 @@
 #include <iomanip>      // Phase one includes
 #include <fstream>
 
-class Level : BaseLevel {
+class Level : public BaseLevel {
 public:
 	Level(sf::RenderWindow& window, Input& input, GameState& state, AudioManager& audio);
 	~Level() override;
@@ -32,6 +32,8 @@ private:
 
     void loadLevel(std::string fileName, sf::Vector2f worldSize); 
 
+    void displayHUD();
+
     sf::View m_cameraView;
 
     // Entities
@@ -51,7 +53,7 @@ private:
     float m_timeSpent;
     float m_sheepTimer;
     float m_maxTime = 30.f;
-    const float SHEEP_INTERVAL = 10.f;
+    const float SHEEP_INTERVAL = 5.f;
     sf::Font m_font;
     sf::Text m_timerText;
     sf::Text m_winText;

@@ -28,7 +28,7 @@ Level::~Level()
 void Level::reset()
 {
     sf::Vector2f levelSize = { 800.f, 800.f };
-    m_levelBounds = { {0.f, 0.f}, {levelSize } };
+    m_levelBounds = { {0.f, 0.f}, levelSize };
     m_isGameOver = false;
     if (m_playerRabbit) delete m_playerRabbit;
     m_playerRabbit = new Rabbit();
@@ -114,8 +114,9 @@ void Level::spawnSheep()
 
         sheepPos = {
 
-            static_cast<int>(rand() % maxX),
-            static_cast<int>(rand() % maxY)
+            // Conversion type int -> float required for randomisation
+            static_cast<float>(rand() % maxX),
+            static_cast<float > (rand() % maxY)
             
         };
 
@@ -206,7 +207,9 @@ void Level::update(float dt)
     m_playerRabbit->update(dt);
     for (Sheep* s : m_sheepList) if (s->isAlive()) s->update(dt);
 
-    if (m_sheepTimer <= 0)
+    m_sheepTimer -= dt;
+
+    if (m_sheepTimer <= 0.f)
     {
 
         spawnSheep();
@@ -214,7 +217,7 @@ void Level::update(float dt)
 
     }
 
-    m_sheepTimer -= dt;
+
     m_timeSpent += dt;
 
     float timeReamining = m_maxTime - m_timeSpent;
@@ -227,8 +230,6 @@ void Level::update(float dt)
     // Game Over is active when timer reaches maxTime
     m_isGameOver = (m_timeSpent >= m_maxTime);
 
-
-
     manageCollisions();
     UpdateCamera();
 
@@ -238,6 +239,58 @@ void Level::update(float dt)
         writeHighScore(m_timeSpent);
         displayScoreboard();
     }
+
+}
+
+void Level::displayHUD()
+{
+
+    sf::View old_view = m_window.getView();
+    sf::Vector2f middle = old_view.getCenter();
+
+    float half_dim = old_view.getSize().x / 2.f; // Assumed square view
+
+    m_window.setView(m_window.getDefaultView());
+
+    for (auto& sheep : m_sheepList)
+    {
+
+        // If the Sheep is dead, skip this operation
+        if (!sheep->isAlive()) continue;
+
+        float markerX = half_dim;
+        float markerY = half_dim;
+
+        if (sheep->getPosition().x < middle.x - half_dim) markerX = 2.f; // Slightly outside
+        if (sheep->getPosition().x > middle.x + half_dim)
+        {
+
+            markerX = old_view.getSize().x - 12.f;
+
+        }
+
+        if (sheep->getPosition().y < middle.y - half_dim) markerY = 2.f; // Slightly outside
+        if (sheep->getPosition().y > middle.y + half_dim)
+        {
+
+            markerY = old_view.getSize().y - 12.f;
+
+        }
+
+        // If Sheep is on the screen, skip (I.E don't bother displaying as we can see the Sheep
+        if (markerX == half_dim && markerY == half_dim) continue;
+
+        sf::CircleShape marker;
+        marker.setRadius(5.f);
+        marker.setPosition({ markerX, markerY });
+        marker.setFillColor(sf::Color::Red);
+        m_window.draw(marker);
+
+    }
+
+    // Reset view back to old view
+    m_window.setView(old_view);
+
 }
 
 // Render level
@@ -253,6 +306,8 @@ void Level::render()
     }
     m_window.draw(*m_playerRabbit);
     m_window.draw(m_timerText);
+
+    displayHUD();
 
     if (m_isGameOver)
     {
